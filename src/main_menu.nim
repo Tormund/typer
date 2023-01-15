@@ -1,5 +1,5 @@
 import nimx / [ view, event, font, layout, text_field, formatted_text, view_event_handling ]
-import typer_theme, options_list
+import typer_theme, options_list, typer
 
 type 
   MainMenu* = ref object of TyperView
@@ -13,7 +13,6 @@ proc updateStartHint(v: MainMenu) =
 
 method init*(v: MainMenu, r: Rect) {.gcsafe.} =
   procCall v.View.init(r)
-  # v.backgroundColor = blackColor()
   v.makeLayout:
     - HintLabel as hint:
       text: ""
@@ -31,7 +30,7 @@ method init*(v: MainMenu, r: Rect) {.gcsafe.} =
       horizontalAlignment: haCenter
     
     - HintLabel:
-      text: "j k - navigate\nw d - theme\nspace - to start"
+      text: "Controls:\nj k - navigate\nw d - theme\nspace - to start"
       centerY == super
       x == 10
       width == 250
@@ -50,21 +49,30 @@ method init*(v: MainMenu, r: Rect) {.gcsafe.} =
   v.setTheme()
 
 method onTextInput*(v: MainMenu, s: string): bool =
-  echo "mainMenu on text: ", s
+  # echo "mainMenu on text: ", s
   case s
     of "d":
       setCurrentTheme(darkTheme)
       v.setTheme()
-      echo "set dark theme"
+      # echo "set dark theme"
     of "w":
       setCurrentTheme(whiteTheme)
       v.setTheme()
-      echo "set light theme"
+      # echo "set light theme"
     of "k":
       v.options.selectPrev()
       v.updateStartHint()
     of "j":
       v.options.selectNext()
       v.updateStartHint()
+    of " ":
+      v.window.makeLayout:
+        - LevelView as level:
+          x == 5
+          y == 5
+          width == super.width - 10.0
+          height == super.height - 10.0
+      discard level.makeFirstResponder()
+      # v.removeFromSuperview()
     else:
       discard

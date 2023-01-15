@@ -1,21 +1,23 @@
 import nimx / [ types, font, text_field, formatted_text ]
 
 type TyperTheme* = ref object
-  menuFont*: Font
-  typerFont*: Font
+  regularFont*: Font
+  selectedFont*: Font
   hintFont*: Font
   backgroundColor*: Color
   textColor*: Color
+  scoreColor*: Color
 
 type 
   MenuLabel* = ref object of Label
   HintLabel* = ref object of Label
   TyperLabel* = ref object of Label
+  ScoreLabel* = ref object of Label
   TyperView* = ref object of View
 
 proc defaultFonts(v: var TyperTheme) =
-  v.menuFont = newFontWithFace("DejaVuSansMono", 40.0f) 
-  v.typerFont = newFontWithFace("DejaVuSansMono-Bold", 40.0f)
+  v.regularFont = newFontWithFace("DejaVuSansMono", 40.0f) 
+  v.selectedFont = newFontWithFace("DejaVuSansMono-Bold", 40.0f)
   v.hintFont = newFontWithFace("DejaVuSansMono-Bold", 20.0f)
  
 proc darkTheme*(): TyperTheme =
@@ -23,12 +25,14 @@ proc darkTheme*(): TyperTheme =
   result.defaultFonts() 
   result.backgroundColor = blackColor()
   result.textColor = whiteColor()
+  result.scoreColor = newColor(0.1, 0.2, 1.0, 1.0)
 
 proc whiteTheme*(): TyperTheme =
   result.new() 
   result.defaultFonts()
   result.backgroundColor = whiteColor()
   result.textColor = blackColor()
+  result.scoreColor = newColor(0.1, 0.2, 1.0, 1.0)
 
 var gCurrentTheme{.threadvar.}: TyperTheme 
 
@@ -54,12 +58,16 @@ method setTheme*(v: HintLabel, theme: TyperTheme) =
   v.textColor = theme.textColor
 
 method setTheme*(v: MenuLabel, theme: TyperTheme) =
-  v.font = theme.menuFont
+  v.font = theme.regularFont
   v.textColor = theme.textColor
 
 method setTheme*(v: TyperLabel, theme: TyperTheme) =
-  v.font = theme.typerFont
+  v.font = theme.regularFont
   v.textColor = theme.textColor
+
+method setTheme*(v: ScoreLabel, theme: TyperTheme) =
+  v.font = theme.regularFont
+  v.textColor = theme.scoreColor
 
 
 proc setTheme*(v: View) =
