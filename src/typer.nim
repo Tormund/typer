@@ -2,7 +2,7 @@ import nimx / [ view, event, font, formatted_text, context, composition, button,
   gesture_detector, view_event_handling, layout, text_field ]
 
 import times
-import task_generator
+import task_generator, typer_theme
 
 const TaskLen = 10
 
@@ -25,20 +25,20 @@ type
     scoreLabel: Label
     completedTasks: seq[TaskResult]
 
-  TyperView* = ref object of View
+  LevelView* = ref object of TyperView
     round: GameRound
     font: Font
     selectedFont: Font
     smallFont: Font
   
-method init*(v: TyperView, r: Rect) =
+method init*(v: LevelView, r: Rect) =
   procCall v.View.init(r)
   v.backgroundColor = blackColor() 
   v.font = newFontWithFace("DejaVuSansMono",40.0f)
   v.selectedFont = newFontWithFace("DejaVuSansMono-Bold", 40.0f)
   v.smallFont = newFontWithFace("DejaVuSansMono-Bold",20.0f)
 
-proc setCursor(v: TyperView) =
+proc setCursor(v: LevelView) =
   # echo "setting cursor at ", v.round.cursorPos
   if v.round.cursorPos >= TaskLen:
     v.setNeedsDisplay()
@@ -47,26 +47,26 @@ proc setCursor(v: TyperView) =
   v.round.field.formatted_text.setTextAlphaInRange(max(0, v.round.cursorPos - 1), v.round.cursorPos, 0.5)
   v.setNeedsDisplay()
 
-template currentTaskStats(v: TyperView): TaskResult = v.round.completedTasks[^1]
+template currentTaskStats(v: LevelView): TaskResult = v.round.completedTasks[^1]
 
-proc resetTextFields(v: TyperView) = 
+proc resetTextFields(v: LevelView) = 
   v.round.field.text = v.round.task
   v.round.field.formatted_text.setFontInRange(0, -1, v.font)
   v.round.field.formatted_text.setTextAlphaInRange(0, -1, 1.0)
   v.round.field.formatted_text.setTextColorInRange(0, -1, whiteColor())
 
-proc setScore(v: TyperView, amount: int) =
+proc setScore(v: LevelView, amount: int) =
   v.round.scoreLabel.text = "Score: " & $amount
 
-proc incScore(v: TyperView, amount: int) =
+proc incScore(v: LevelView, amount: int) =
   v.round.score += amount 
   v.setScore(v.round.score)
 
-proc decScore(v: TyperView, amount: int) = 
+proc decScore(v: LevelView, amount: int) = 
   v.round.score -= amount
   v.setScore(v.round.score)
 
-proc setTask(v: TyperView) =
+proc setTask(v: LevelView) =
   v.round.cursorPos = 0
   v.round.task = generateTask(v.round.difficulty, TaskLen)
   v.round.completedTasks.setLen(v.round.completedTasks.len + 1)
@@ -82,14 +82,14 @@ proc setTask(v: TyperView) =
     inc v.round.difficulty
   v.setCursor()
 
-proc highlightInputChar(v: TyperView, index: int, isGood: bool) =
+proc highlightInputChar(v: LevelView, index: int, isGood: bool) =
   var c = newColor(0.0, 1.0, 0.0, 1.0)
   if not isGood:
     c = newColor(1.0, 0.0, 0.0, 1.0)
   v.round.field.formatted_text.setTextColorInRange(index, index + 1, c)
   v.setNeedsDisplay()
 
-proc onCharacter(v: TyperView, c: char) =
+proc onCharacter(v: LevelView, c: char) =
   var isGood = v.round.task[v.round.cursorPos] == c
   v.currentTaskStats.res[v.round.cursorPos] = isGood
   v.currentTaskStats.time[v.round.cursorPos] = epochTime() - v.round.prevInputTime
@@ -103,7 +103,7 @@ proc onCharacter(v: TyperView, c: char) =
   if v.round.cursorPos >= v.round.task.len:
     v.setTask()
 
-proc start(v: TyperView) =
+proc start(v: LevelView) =
   v.removeAllSubviews()
   
   v.makeLayout:
@@ -141,7 +141,7 @@ proc start(v: TyperView) =
   v.setTask()
   v.setScore(0)
 
-proc setup*(v: TyperView) = 
+proc setup*(v: LevelView) = 
   discard v.makeFirstResponder()
   v.makeLayout:
     - Label as welcomeLbl:
@@ -163,7 +163,7 @@ proc setup*(v: TyperView) =
       horizontalAlignment: haCenter
       textColor: whiteColor()
 
-method onTextInput*(v: TyperView, s: string): bool {.gcsafe.} = 
+method onTextInput*(v: LevelView, s: string): bool {.gcsafe.} = 
   if v.round.isNil:
     if s == " ":
       v.start()
