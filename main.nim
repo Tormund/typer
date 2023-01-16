@@ -2,7 +2,7 @@
 import nimx / [ view, scroll_view, table_view, text_field, layout, window, linear_layout ]
 import sequtils, intsets
 
-import src / [ main_menu, typer ]
+import src/main_menu 
 
 proc startApplication() =
   let mainWindow = newWindow(newRect(40, 40, 800, 600))

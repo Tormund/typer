@@ -1,7 +1,7 @@
 import nimx / [ view, event, font, layout, text_field, formatted_text, view_event_handling ]
-import typer_theme, options_list, typer
+import typer_theme, options_list, typer_infinity, typer_career
 
-type 
+type
   MainMenu* = ref object of TyperView
     options: OptionList
     hint: Label
@@ -28,14 +28,14 @@ method init*(v: MainMenu, r: Rect) {.gcsafe.} =
       height >= 25.0
       width == super
       horizontalAlignment: haCenter
-    
+
     - HintLabel:
       text: "Controls:\nj k - navigate\nw d - theme\nspace - to start"
       centerY == super
       x == 10
       width == 250
       horizontalAlignment: haJustify
-      
+
 
     - OptionList as options:
       centerY == super
@@ -44,9 +44,60 @@ method init*(v: MainMenu, r: Rect) {.gcsafe.} =
       horizontalAlignment: haLeft
   v.hint = hint
   v.options = options
-  v.options.setOptions(@["carear", "infinity", "etc"])
-  v.updateStartHint() 
+  v.options.setOptions(@["career", "infinity"])
+  v.updateStartHint()
   v.setTheme()
+
+# layout macro bug?
+template startLevel(v: MainMenu, t: typed) =
+  v.window.makeLayout:
+    - t as level:
+      x == 5
+      y == 5
+      width == super.width - 10.0f
+      height == super.height - 10.0f
+
+  level.onComplete = proc() =
+    level.removeFromSuperview()
+    discard v.makeFirstResponder()
+  discard level.makeFirstResponder()
+  v.setNeedsDisplay()
+
+
+proc startSelectedMode(v: MainMenu) =
+  let selected = v.options.selectedOption()
+  case selected:
+  of "infinity":
+    v.startLevel(LevelView)
+    # v.window.makeLayout:
+    #   - LevelView as level:
+    #     x == 5
+    #     y == 5
+    #     width == super.width - 10.0f
+    #     height == super.height - 10.0f
+
+    # level.onComplete = proc() =
+    #   level.removeFromSuperview()
+    #   discard v.makeFirstResponder()
+    # discard level.makeFirstResponder()
+    # v.setNeedsDisplay()
+
+  of "career":
+    v.window.makeLayout:
+      - LevelCareer as level:
+        x == 5
+        y == 5
+        width == super.width - 10.0f
+        height == super.height - 10.0f
+
+    level.onComplete = proc() =
+      level.removeFromSuperview()
+      discard v.makeFirstResponder()
+    discard level.makeFirstResponder()
+    v.setNeedsDisplay()
+
+  else:
+    echo "wip ", selected
 
 method onTextInput*(v: MainMenu, s: string): bool =
   # echo "mainMenu on text: ", s
@@ -66,13 +117,6 @@ method onTextInput*(v: MainMenu, s: string): bool =
       v.options.selectNext()
       v.updateStartHint()
     of " ":
-      v.window.makeLayout:
-        - LevelView as level:
-          x == 5
-          y == 5
-          width == super.width - 10.0
-          height == super.height - 10.0
-      discard level.makeFirstResponder()
-      # v.removeFromSuperview()
+      v.startSelectedMode()
     else:
       discard

@@ -14,6 +14,8 @@ type
   TyperLabel* = ref object of Label
   ScoreLabel* = ref object of Label
   TyperView* = ref object of View
+  BaseLevelView* = ref object of TyperView
+    onComplete*: proc() {.gcsafe.}
 
 proc defaultFonts(v: var TyperTheme) =
   v.regularFont = newFontWithFace("DejaVuSansMono", 40.0f) 

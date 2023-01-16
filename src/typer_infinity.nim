@@ -25,7 +25,7 @@ type
     scoreLabel: Label
     completedTasks: seq[TaskResult]
 
-  LevelView* = ref object of TyperView
+  LevelView* = ref object of BaseLevelView
     round: GameRound  
 
 proc setCursor(v: LevelView) =
@@ -133,6 +133,8 @@ method onTextInput*(v: LevelView, s: string): bool {.gcsafe.} =
 
 method onKeyDown*(v: LevelView, e: var Event): bool =
   if e.keyCode == VirtualKey.F5:
+    v.onComplete()
+    v.onComplete = nil
     # hacky 
-    discard v.window.subviews[0].makeFirstResponder()
-    v.removeFromSuperview()
+    # discard v.window.subviews[0].makeFirstResponder()
+    # v.removeFromSuperview()
