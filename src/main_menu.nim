@@ -36,7 +36,6 @@ method init*(v: MainMenu, r: Rect) {.gcsafe.} =
       width == 250
       horizontalAlignment: haJustify
 
-
     - OptionList as options:
       centerY == super
       x == super.width * 0.5 - 50
@@ -48,7 +47,6 @@ method init*(v: MainMenu, r: Rect) {.gcsafe.} =
   v.updateStartHint()
   v.setTheme()
 
-# layout macro bug?
 template startLevel(v: MainMenu, t: typed) =
   v.window.makeLayout:
     - t as level:
@@ -69,33 +67,8 @@ proc startSelectedMode(v: MainMenu) =
   case selected:
   of "infinity":
     v.startLevel(LevelView)
-    # v.window.makeLayout:
-    #   - LevelView as level:
-    #     x == 5
-    #     y == 5
-    #     width == super.width - 10.0f
-    #     height == super.height - 10.0f
-
-    # level.onComplete = proc() =
-    #   level.removeFromSuperview()
-    #   discard v.makeFirstResponder()
-    # discard level.makeFirstResponder()
-    # v.setNeedsDisplay()
-
   of "career":
-    v.window.makeLayout:
-      - LevelCareer as level:
-        x == 5
-        y == 5
-        width == super.width - 10.0f
-        height == super.height - 10.0f
-
-    level.onComplete = proc() =
-      level.removeFromSuperview()
-      discard v.makeFirstResponder()
-    discard level.makeFirstResponder()
-    v.setNeedsDisplay()
-
+    v.startLevel(LevelCareer)
   else:
     echo "wip ", selected
 

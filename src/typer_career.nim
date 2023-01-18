@@ -2,11 +2,17 @@ import nimx / [ view, event, font, formatted_text, view_event_handling, text_fie
 
 import task_generator, typer_theme
 
-type 
+type
   LevelCareer* = ref object of BaseLevelView
 
 method init*(v: LevelCareer, r: Rect) =
   procCall v.View.init(r)
+  v.makeLayout:
+    - HintLabel:
+      text: "F5 to exit"
+      x == 10
+      y == 50
+
 
   v.setTheme()
 
